@@ -20,15 +20,9 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void add(T value, int index) {
-        if (index < 0 || index > size) {
-            throw new ArrayListIndexOutOfBoundsException(
-                    "Index: " + index + ", Size: " + size
-            );
-        }
+        checkIndexForAdd(index);
         ensureCapacity();
-        for (int i = size; i > index; i--) {
-            elements[i] = elements[i - 1];
-        }
+        System.arraycopy(elements, index, elements, index + 1, size - index);
         elements[index] = value;
         size++;
     }
@@ -39,7 +33,7 @@ public class ArrayList<T> implements List<T> {
             return;
         }
         while (size + list.size() > elements.length) {
-            grow(); // увеличиваем на 1.5×
+            grow();
         }
         for (int i = 0; i < list.size(); i++) {
             elements[size++] = list.get(i);
@@ -49,39 +43,26 @@ public class ArrayList<T> implements List<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T get(int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException(
-                    "Index: " + index + ", Size: " + size
-            );
-        }
+        checkIndex(index);
         return (T) elements[index];
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void set(T value, int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException(
-                    "Index: " + index + ", Size: " + size
-            );
-        }
+        checkIndex(index);
         elements[index] = value;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T remove(int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException("Index: " + index + ", Size: " + size
-            );
-        }
+        checkIndex(index);
 
         T removed;
         removed = (T) elements[index];
 
-        for (int i = index; i < size - 1; i++) {
-            elements[i] = elements[i + 1];
-        }
+        System.arraycopy(elements, index + 1, elements, index, size - index - 1);
         elements[size - 1] = null;
         size--;
 
@@ -117,12 +98,26 @@ public class ArrayList<T> implements List<T> {
         }
     }
 
+    private void checkIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new ArrayListIndexOutOfBoundsException(
+                    "Index: " + index + ", Size: " + size
+            );
+        }
+    }
+
+    private void checkIndexForAdd(int index) {
+        if (index < 0 || index > size) {
+            throw new ArrayListIndexOutOfBoundsException(
+                    "Index: " + index + ", Size: " + size
+            );
+        }
+    }
+
     private void grow() {
         int newCapacity = elements.length + (elements.length >> 1);
         Object[] newArray = new Object[newCapacity];
-        for (int i = 0; i < elements.length; i++) {
-            newArray[i] = elements[i];
-        }
+        System.arraycopy(elements, 0, newArray, 0, elements.length);
         elements = newArray;
     }
 }
